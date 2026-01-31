@@ -1,0 +1,257 @@
+/* ============================================
+   Animated Product Card Grid — Styles
+   Transform-based animations for performance.
+   ============================================ */
+
+:root {
+  --card-duration: 0.4s;
+  --card-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --card-radius: 12px;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --focus-ring: 2px solid #2563eb;
+  --focus-offset: 2px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.page-header {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+}
+
+.page-header .subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* ------------------------------------------
+   Responsive grid
+   ------------------------------------------ */
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+  list-style: none;
+}
+
+@media (min-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+  }
+}
+
+/* ------------------------------------------
+   Card container — focus & tap target
+   ------------------------------------------ */
+.product-card {
+  min-height: 280px;
+  outline: none;
+  border-radius: var(--card-radius);
+  /* Avoid will-change by default to minimize repaint */
+}
+
+.product-card:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Only hint GPU layer during interaction to reduce repaints */
+.product-card:hover .card-inner,
+.product-card[aria-expanded="true"] .card-inner {
+  will-change: transform;
+}
+
+.product-card[aria-expanded="true"] .card-inner,
+.product-card:not([aria-expanded="true"]):hover .card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Remove will-change after animation to free GPU memory */
+.product-card .card-inner {
+  will-change: auto;
+  transform: rotateY(0deg);
+  transition: transform var(--card-duration) var(--card-easing);
+}
+
+/* ------------------------------------------
+   3D flip container
+   ------------------------------------------ */
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.product-card {
+  perspective: 1000px;
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Transform-only animations — no layout/repaint */
+  transition: box-shadow var(--card-duration) var(--card-easing);
+}
+
+.product-card:hover .card-front,
+.product-card:hover .card-back,
+.product-card[aria-expanded="true"] .card-front,
+.product-card[aria-expanded="true"] .card-back {
+  box-shadow: var(--card-shadow-hover);
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* ------------------------------------------
+   Front: image, title, price
+   ------------------------------------------ */
+.card-front {
+  padding-bottom: 1rem;
+}
+
+.card-image-wrap {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.card-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Avoid layout thrashing */
+  vertical-align: middle;
+}
+
+.card-title {
+  margin: 0.75rem 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.card-front .card-price {
+  margin: 0.25rem 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ------------------------------------------
+   Back: title, description, price, CTA
+   ------------------------------------------ */
+.card-back {
+  padding: 1.25rem 1rem 1rem;
+  justify-content: flex-start;
+}
+
+.card-back .card-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.card-desc {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  flex: 1;
+  line-height: 1.45;
+}
+
+.card-back .card-price {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.btn-add-cart {
+  margin-top: auto;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-add-cart:hover {
+  background: #1d4ed8;
+}
+
+.btn-add-cart:active {
+  transform: scale(0.98);
+}
+
+.btn-add-cart:focus {
+  outline: none;
+}
+
+.btn-add-cart:focus-visible {
+  outline: 2px solid #1e293b;
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------
+   Touch: prevent double-tap zoom on card
+   ------------------------------------------ */
+@media (hover: none) and (pointer: coarse) {
+  .product-card {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
